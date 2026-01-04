@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Scheduling System Architecture</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 1cm;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 3px solid #2c3e50;
+            padding-bottom: 20px;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            color: #7f8c8d;
+            font-size: 16px;
+        }
+        
+        .diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .phase {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 8px;
+            border-left: 5px solid #3498db;
+        }
+        
+        .phase-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .phase-number {
+            background: #3498db;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .flow-row {
+            display: flex;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .box {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .box-input {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            color: #1976d2;
+        }
+        
+        .box-process {
+            background: #fff3e0;
+            border: 2px solid #ff9800;
+            color: #e65100;
+        }
+        
+        .box-decision {
+            background: #fff9c4;
+            border: 2px solid #fbc02d;
+            color: #f57f17;
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            padding: 20px;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .box-output {
+            background: #c8e6c9;
+            border: 2px solid #4caf50;
+            color: #2e7d32;
+        }
+        
+        .box-error {
+            background: #ffcdd2;
+            border: 2px solid #f44336;
+            color: #c62828;
+        }
+        
+        .arrow {
+            text-align: center;
+            color: #95a5a6;
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        
+        .skill-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .skill-box {
+            background: #b39ddb;
+            color: white;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 2px solid #e0e0e0;
+            text-align: center;
+        }
+        
+        .metric-title {
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .legend-color {
+            width: 30px;
+            height: 20px;
+            border-radius: 4px;
+        }
+        
+        .data-model {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            border: 1px solid #dee2e6;
+        }
+        
+        .data-model-title {
+            font-weight: bold;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+        
+        .data-field {
+            margin-left: 20px;
+            color: #6c757d;
+            line-height: 1.8;
+        }
+        
+        .print-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            z-index: 1000;
+        }
+        
+        .print-button:hover {
+            background: #2980b9;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .container {
+                box-shadow: none;
+            }
+            .print-button {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="print-button" onclick="window.print()">🖨️ Print to PDF</button>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Resource Scheduling & Capacity Analysis System</h1>
+            <p>Complete Architecture & Data Flow Diagram</p>
+        </div>
+        
+        <!-- PHASE 1: INPUT DATA -->
+        <div class="phase">
+            <div class="phase-title">
+                <span class="phase-number">1</span>
+                Input Data & Initialization
+            </div>
+            <div class="flow-row">
+                <div class="box box-input">
+                    <strong>100 Employees</strong><br>
+                    Skills, Availability, Cost Rate
+                </div>
+                <div class="box box-input">
+                    <strong>100 Projects</strong><br>
+                    Start Time, Duration, Required Skills
+                </div>
+            </div>
+            
+            <div class="data-model">
+                <div class="data-model-title">Employee Model:</div>
+                <div class="data-field">
+                    • id: int<br>
+                    • skills: List[str] OR Enum (Choice is your)<br>
+                    • occupied_slots: Set[datetime]<br>
+                    • daily_hours: Dict[date → hours]<br>
+                    • total_regular_hours: float<br>
+                    • total_overtime_hours: float
+                </div>
+            </div>
+            
+            <div class="data-model">
+                <div class="data-model-title">Project Model:</div>
+                <div class="data-field">
+                    • id: int<br>
+                    • start_time: datetime<br>
+                    • duration_hours: int<br>
+                    • required_skills: List[str] (5 skills) OR Enum (Choice is your)<br>
+                    • assigned_employees: List[Employee]
+                </div>
+            </div>
+        </div>
+        
+        <div class="arrow">⬇️</div>
+        
+        <!-- PHASE 2: PRE-PROCESSING -->
+        <div class="phase">
+            <div class="phase-title">
+                <span class="phase-number">2</span>
+                Pre-Processing & Indexing
+            </div>
+            <div class="flow-row">
+                <div class="box box-process">
+                    <strong>Build Skill Index</strong><br>
+                    skill → [employees with skill]<br>
+                    O(1) lookup optimization
+                </div>
+                <div class="box box-process">
+                    <strong>Sort Projects</strong><br>
+                    By start_time (earliest first)<br>
+                    Ensures temporal ordering
+                </div>
+            </div>
+        </div>
+        
+        <div class="arrow">⬇️</div>
+        
+        <!-- PHASE 3: SCHEDULING LOOP -->
+        <div class="phase">
+            <div class="phase-title">
+                <span class="phase-number">3</span>
+                Scheduling Algorithm (For Each Project)
+            </div>
+            
+            <div style="margin-top: 15px; font-weight: 600; color: #7f8c8d;">
+                Required Skills per Project (5 different):
+            </div>
+            <div class="skill-grid">
+                <div class="skill-box">Producer</div>
+                <div class="skill-box">Editor</div>
+                <div class="skill-box">Graphics Designer</div>
+                <div class="skill-box">Colorist</div>
+                <div class="skill-box">Audio Engineer</div>
+            </div>
+            
+            <div class="arrow">⬇️</div>
+            
+            <div class="flow-row">
+                <div class="box box-process">
+                    <strong>Find Candidates</strong><br>
+                    Get all employees with required skill
+                </div>
+                <div class="box box-process">
+                    <strong>Filter Available</strong><br>
+                    Check time slot conflicts<br>
+                    Remove already-assigned
+                </div>
+                <div class="box box-decision">
+                    Available?
+                </div>
+            </div>
+            
+            <div class="arrow">⬇️</div>
+            
+            <div class="flow-row">
+                <div class="box box-output">
+                    <strong>Choose Best Fit</strong><br>
+                    Least-utilized employee<br>
+                    Load balancing heuristic
+                </div>
+                <div class="box box-error">
+                    <strong>No Match</strong><br>
+                    Project scheduling fails<br>
+                    Log for analysis
+                </div>
+            </div>
+            
+            <div class="arrow">⬇️</div>
+            
+            <div class="flow-row">
+                <div class="box box-process" style="flex: 2;">
+                    <strong>Book Employee Time</strong><br>
+                    • Add to occupied_slots<br>
+                    • Track hours: if daily_hours < 8 → Regular, else → Overtime<br>
+                    • Update daily_hours counter
+                </div>
+            </div>
+            
+            <div class="arrow">⬇️</div>
+            
+            <div class="box box-decision" style="width: 300px; margin: 10px auto;">
+                All 5 Skills Filled?
+            </div>
+            
+            <div class="arrow">⬇️</div>
+            
+            <div class="flow-row">
+                <div class="box box-output">
+                    ✅ Project Scheduled Successfully
+                </div>
+                <div class="box box-error">
+                    ❌ Project Failed (Insufficient Resources)
+                </div>
+            </div>
+        </div>
+        
+        <div class="arrow">⬇️</div>
+        
+        <!-- PHASE 4: ANALYSIS -->
+        <div class="phase">
+            <div class="phase-title">
+                <span class="phase-number">4</span>
+                Capacity & Cost Analysis
+            </div>
+            
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="metric-title">Team Utilization</div>
+                    <div class="metric-value">Σ hours worked / Σ available</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Regular Hours</div>
+                    <div class="metric-value">Cost × 1.0</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Overtime Hours</div>
+                    <div class="metric-value">Cost × 1.3</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Success Rate</div>
+                    <div class="metric-value">Scheduled / Total</div>
+                </div>
+            </div>
+            
+            <div class="arrow">⬇️</div>
+            
+            <div class="flow-row">
+                <div class="box box-process">
+                    <strong>Identify Outliers</strong><br>
+                    Underutilized: <40%<br>
+                    Overworked: >90%
+                </div>
+                <div class="box box-process">
+                    <strong>Calculate Costs</strong><br>
+                    Total = Regular + (OT × 1.3)<br>
+                    OT percentage
+                </div>
+                <div class="box box-process">
+                    <strong>Hiring Analysis</strong><br>
+                    Compare: New hire cost vs<br>
+                    Current overtime cost
+                </div>
+            </div>
+        </div>
+        
+        <div class="arrow">⬇️</div>
+        
+        <!-- PHASE 5: DECISION SUPPORT -->
+        <div class="phase">
+            <div class="phase-title">
+                <span class="phase-number">5</span>
+                Decision Support & Recommendations
+            </div>
+            
+            <div class="flow-row">
+                <div class="box box-output">
+                    <strong>Hire More Staff?</strong><br>
+                    If OT cost > new hire cost<br>
+                    If scheduling failure rate high
+                </div>
+                <div class="box box-output">
+                    <strong>Use Overtime?</strong><br>
+                    If OT cost < hiring cost<br>
+                    If utilization already high
+                </div>
+                <div class="box box-output">
+                    <strong>Right-sized Team?</strong><br>
+                    60-80% utilization<br>
+                    <5% scheduling failures<br>
+                    <10% overtime hours
+                </div>
+            </div>
+        </div>
+        
+        <!-- LEGEND -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background: #e3f2fd; border: 2px solid #2196f3;"></div>
+                <span>Input Data</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #fff3e0; border: 2px solid #ff9800;"></div>
+                <span>Process/Action</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #fff9c4; border: 2px solid #fbc02d;"></div>
+                <span>Decision Point</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #c8e6c9; border: 2px solid #4caf50;"></div>
+                <span>Success Output</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #ffcdd2; border: 2px solid #f44336;"></div>
+                <span>Error/Failure</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
