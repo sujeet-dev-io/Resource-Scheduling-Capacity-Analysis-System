@@ -1,37 +1,80 @@
-Resource Scheduling & Capacity Analysis for Live Production Projects
-Show Image
-Show Image 
-📋 Overview
+ # Resource Scheduling & Capacity Analysis for Live Production Projects
+
+## Overview
+
 This project models and analyzes workforce scheduling for a media production company that delivers live broadcast events such as sports, news, and entertainment shows. Since these projects operate on fixed schedules, effective resource allocation is critical to avoid conflicts, reduce overtime, and balance employee workload.
+
 The solution focuses on logical problem modeling, basic scheduling, utilization analysis, and cost trade-offs, rather than heavy frameworks or premature optimization.
 
-🎯 Problem Statement
-The company executes approximately 100 live production projects per year. Each project:
+---
 
-Has a fixed date and time
-Requires exactly 5 employees
-Each employee must have a different skill
+## Problem Statement
 
-The workforce consists of 100 employees, each limited to 8 regular working hours per day, with overtime allowed at an increased cost.
-The Challenge
+The company executes approximately **100 live production projects per year**.
 
-Assign employees without double-booking
-Balance workload across employees
-Minimize unnecessary overtime
-Evaluate whether the current workforce size is sufficient
+Each project:
+- Has a fixed date and time
+- Requires exactly **5 employees**
+- Each employee must have a **different skill**
+
+The workforce consists of **100 employees**, where:
+- Each employee can work up to **8 regular hours per day**
+- Work beyond this limit is considered **overtime** and incurs a higher cost
+
+The key challenges are:
+- Assigning employees without double-booking
+- Balancing workload across employees
+- Minimizing unnecessary overtime
+- Evaluating whether the current workforce size is sufficient
+
+---
+
+## Key Assumptions
+
+To keep the model simple and focused on core logic, the following assumptions are made:
+
+- Employees have a single primary skill
+- Projects have fixed durations
+- Employees can work on only one project at a time
+- Overtime is allowed but tracked separately
+- No absences or leaves are considered
+
+---
+
+## System Architecture
+
+The solution follows a modular and layered system architecture, separating domain modeling, scheduling logic, and analytical components.
+
+### Architecture Reference
+
+- 📄 **Resource Scheduling System Architecture (PDF)**
+-   [Resource Scheduling System Architecture.pdf](https://github.com/user-attachments/files/24420322/Resource.Scheduling.System.Architecture.pdf)
+
+- 🖼️ **System Architecture Diagram (Image)**
+- <img width="4852" height="12665" alt="System Architecture Diagram" src="https://github.com/user-attachments/assets/b10876db-b563-4b8a-886a-49a60ded072a" />
 
 
-🔑 Key Assumptions
+### Architecture Overview
 
-Employees have a single primary skill
-Projects have fixed durations
-Employees can work on only one project at a time
-Overtime is allowed but tracked separately
-No absences or leaves are considered
+- **Model Layer**  
+  Represents core business entities such as employees, projects, skills, and time slots
 
-These assumptions keep the model simple and focused on core logic.
+- **Scheduling Layer**  
+  Handles employee availability checks and conflict-free assignment
 
-📁 Project Structure
+- **Analysis Layer**  
+  Computes utilization metrics and compares overtime versus hiring costs
+
+- **Application Layer**  
+  Drives the simulation and integrates all system components
+
+This architecture ensures clear separation of concerns, readability, and extensibility.
+
+---
+
+## Project Structure
+
+```text
 src/
  ├── model/
  │    ├── Employee.java
@@ -45,13 +88,3 @@ src/
  │    ├── UtilizationCalculator.java
  │    └── CostCalculator.java
  └── Main.java
-Module Descriptions
-ModulePurposemodel/Core data structures (Employee, Project, Skill, TimeSlot)scheduler/Assignment logic and conflict detectionanalysis/Utilization tracking and cost calculationsMain.javaEntry point and simulation runner
-
-✨ Features
-
-✅ Skill-based employee assignment - Match employees to projects by required skills
-✅ Conflict-free scheduling - Prevents double-booking across all time slots
-✅ Regular vs overtime hour tracking - Distinguishes 8-hour regular from overtime
-✅ Employee and team utilization calculation - Measures workforce efficiency
-✅ Cost comparison between overtime and hiring - Data-driven staffing decisions
